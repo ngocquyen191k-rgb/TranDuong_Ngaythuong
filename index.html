@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bánh Tráng Ông Biết — Giải pháp bán hàng & thanh toán thông minh cho F&B</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-base: #070b14;
+      --accent-1: #38bdf8;
+      --accent-2: #818cf8;
+      --accent-3: #2dd4bf;
+      --glass-bg: rgba(255, 255, 255, 0.055);
+      --glass-bg-hover: rgba(255, 255, 255, 0.095);
+      --glass-border: rgba(255, 255, 255, 0.13);
+      --glass-highlight: rgba(255, 255, 255, 0.24);
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-base);
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    /* Nền chuyển sắc & ánh sáng lan tỏa phía sau lớp kính */
+    .ambient-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(56, 189, 248, 0.22), transparent 42%),
+        radial-gradient(circle at 85% 22%, rgba(129, 140, 248, 0.22), transparent 45%),
+        radial-gradient(circle at 50% 85%, rgba(45, 212, 191, 0.14), transparent 50%),
+        var(--bg-base);
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(80px);
+      opacity: 0.45;
+      animation: floatOrb 14s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+      width: 360px;
+      height: 360px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      top: -60px;
+      left: -80px;
+    }
+
+    .orb-2 {
+      width: 420px;
+      height: 420px;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent-3));
+      bottom: 8%;
+      right: -100px;
+      animation-delay: -5s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(36px, 28px) scale(1.08); }
+    }
+
+    /* Hiệu ứng Glassmorphism mượt mà */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(18px) saturate(150%);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        inset 0 1px 0 0 var(--glass-highlight),
+        0 20px 50px -15px rgba(0, 0, 0, 0.55);
+      transition:
+        transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.35s ease,
+        box-shadow 0.35s ease;
+    }
+
+    .glass-interactive:hover {
+      transform: translateY(-6px);
+      background: var(--glass-bg-hover);
+      border-color: rgba(255, 255, 255, 0.24);
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.32),
+        0 26px 60px -15px rgba(56, 189, 248, 0.18);
+    }
+
+    .text-gradient {
+      background: linear-gradient(120deg, #ffffff 15%, var(--accent-1) 55%, var(--accent-2) 95%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .btn-glass-primary {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.9), rgba(129, 140, 248, 0.9));
+      box-shadow:
+        0 10px 30px -6px rgba(56, 189, 248, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+    }
+
+    .btn-glass-primary:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.07);
+      box-shadow:
+        0 16px 36px -6px rgba(129, 140, 248, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    /* Chuyển động xuất hiện khi cuộn (Scroll Reveal) */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Accordion FAQ mượt mà */
+    .faq-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .faq-item.open .faq-content {
+      grid-template-rows: 1fr;
+    }
+
+    .faq-inner {
+      overflow: hidden;
+    }
+
+    .faq-icon {
+      transition: transform 0.3s ease;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-sky-400/30 selection:text-sky-200">
+  <!-- Nền chuyển động -->
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <!-- Thanh điều hướng kính mờ -->
+  <header class="sticky top-0 z-50 px-4 sm:px-6 pt-4">
+    <nav class="max-w-6xl mx-auto glass rounded-2xl px-5 py-3.5 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2.5 font-bold text-lg tracking-tight">
+        <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-400 to-indigo-400 flex items-center justify-center text-slate-950 font-extrabold text-sm">ÔB</span>
+        <span>Bánh Tráng Ông Biết</span>
+      </a>
+
+      <div class="hidden md:flex items-center gap-8 text-sm text-slate-300">
+        <a href="#benefits" class="hover:text-white transition">Lợi ích</a>
+        <a href="#features" class="hover:text-white transition">Tính năng</a>
+        <a href="#faq" class="hover:text-white transition">Câu hỏi thường gặp</a>
+      </div>
+
+      <a href="#cta" class="btn-glass-primary text-slate-950 font-semibold text-sm px-4 py-2.5 rounded-xl">
+        Dùng thử miễn phí
+      </a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- 1. HERO SECTION -->
+    <section class="relative pt-14 pb-20 sm:pt-20 sm:pb-28 px-4 sm:px-6">
+      <div class="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 items-center">
+        <div class="lg:col-span-7 space-y-6 reveal is-visible">
+          <div class="inline-flex items-center gap-2 glass px-3.5 py-1.5 rounded-full text-xs font-medium text-sky-300">
+            <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+            Dành cho chủ quán cà phê, nhà hàng &amp; chuỗi F&amp;B vừa và nhỏ
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.12] tracking-tight">
+            Vận hành quán mượt mà,
+            <span class="text-gradient block mt-1">chốt đơn nhanh gấp 2 lần</span>
+          </h1>
+
+          <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl">
+            Quản lý thực đơn, tách bàn, in bếp và đối soát thanh toán QR/thẻ tự động trên một màn hình duy nhất. Giảm sai sót giờ cao điểm và nắm trọn doanh thu theo thời gian thực ngay trên điện thoại.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-4 pt-2">
+            <a href="#cta" class="btn-glass-primary text-slate-950 font-bold text-sm sm:text-base px-6 py-3.5 rounded-2xl">
+              Nhận tư vấn &amp; Demo miễn phí
+            </a>
+            <a href="#features" class="glass glass-interactive text-white font-semibold text-sm sm:text-base px-6 py-3.5 rounded-2xl">
+              Khám phá tính năng
+            </a>
+          </div>
+
+          <div class="pt-4 flex flex-wrap items-center gap-6 text-xs sm:text-sm text-slate-400">
+            <span>✓ Miễn phí 14 ngày đầu</span>
+            <span>✓ Cài đặt trong 15 phút</span>
+            <span>✓ Không ràng buộc hợp đồng dài hạn</span>
+          </div>
+        </div>
+
+        <!-- Thẻ minh họa giao diện kính mờ bên phải Hero -->
+        <div class="lg:col-span-5 reveal is-visible">
+          <div class="glass rounded-3xl p-6 space-y-5 relative overflow-hidden">
+            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <p class="text-xs uppercase tracking-wider text-slate-400">Doanh thu hôm nay</p>
+                <p class="text-2xl sm:text-3xl font-extrabold text-white mt-1">18.450.000đ</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-teal-400/15 text-teal-300 border border-teal-400/30">
+                +24,8% so với hôm qua
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3.5">
+              <div class="glass rounded-2xl p-4">
+                <p class="text-xs text-slate-400">Đơn đang phục vụ</p>
+                <p class="text-xl font-bold text-sky-300 mt-1">14 bàn</p>
+              </div>
+              <div class="glass rounded-2xl p-4">
+                <p class="text-xs text-slate-400">Thời gian gọi món TB</p>
+                <p class="text-xl font-bold text-indigo-300 mt-1">38 giây</p>
+              </div>
+            </div>
+
+            <div class="glass rounded-2xl p-4 space-y-2.5">
+              <div class="flex items-center justify-between text-xs text-slate-300">
+                <span>Thanh toán QR động tự động đối soát</span>
+                <span class="text-teal-300 font-semibold">100% khớp</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                <div class="h-full w-4/5 rounded-full bg-gradient-to-r from-sky-400 to-indigo-400"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. LỢI ÍCH SECTION -->
+    <section id="benefits" class="py-20 px-4 sm:px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="max-w-2xl mx-auto text-center space-y-3 mb-14 reveal">
+          <p class="text-xs font-bold uppercase tracking-widest text-sky-400">Lợi ích cốt lõi</p>
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
+            Tập trung vào trải nghiệm khách, bớt lo sổ sách
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base">
+            Thiết kế riêng cho nhịp vận hành bận rộn của chủ quán và quản lý cửa hàng.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <article class="glass glass-interactive rounded-3xl p-7 space-y-4 reveal">
+            <div class="w-12 h-12 rounded-2xl bg-sky-400/15 border border-sky-400/30 flex items-center justify-center text-sky-300 font-bold text-lg">
+              01
+            </div>
+            <h3 class="text-xl font-bold">Giảm ùn ứ giờ cao điểm</h3>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Nhân viên lên món trực tiếp trên điện thoại hoặc máy POS, phiếu tự động gửi xuống quầy pha chế/bếp—hạn chế đi lại và nhầm bàn.
+            </p>
+          </article>
+
+          <article class="glass glass-interactive rounded-3xl p-7 space-y-4 reveal">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-400/15 border border-indigo-400/30 flex items-center justify-center text-indigo-300 font-bold text-lg">
+              02
+            </div>
+            <h3 class="text-xl font-bold">Chống thất thoát minh bạch</h3>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Mọi thao tác hủy món, giảm giá, hoàn tiền hay chốt ca đều lưu lịch sử rõ ràng theo từng tài khoản, giúp chủ quán kiểm soát chặt chẽ từ xa.
+            </p>
+          </article>
+
+          <article class="glass glass-interactive rounded-3xl p-7 space-y-4 reveal">
+            <div class="w-12 h-12 rounded-2xl bg-teal-400/15 border border-teal-400/30 flex items-center justify-center text-teal-300 font-bold text-lg">
+              03
+            </div>
+            <h3 class="text-xl font-bold">Đào tạo nhân viên siêu nhanh</h3>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Giao diện trực quan, ít bước chạm. Nhân viên mới hoặc thời vụ có thể thao tác thành thạo chỉ sau 10–15 phút làm quen.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TÍNH NĂNG SECTION -->
+    <section id="features" class="py-20 px-4 sm:px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="max-w-2xl mx-auto text-center space-y-3 mb-14 reveal">
+          <p class="text-xs font-bold uppercase tracking-widest text-indigo-400">Tính năng nổi bật</p>
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
+            Đủ công cụ cần thiết cho một cửa hàng hiện đại
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base">
+            Không nhồi nhét những mục rườm rà khiến thao tác chậm đi khi đông khách.
+          </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="glass glass-interactive rounded-3xl p-6 space-y-2.5 reveal">
+            <h3 class="font-bold text-lg text-white">Sơ đồ bàn &amp; Gộp/Tách bill</h3>
+            <p class="text-sm text-slate-300 leading-relaxed">Chuyển bàn, gộp hóa đơn nhóm đông hoặc tách thanh toán lẻ linh hoạt chỉ với vài chạm.</p>
+          </div>
+
+          <div class="glass glass-interactive rounded-3xl p-6 space-y-2.5 reveal">
+            <h3 class="font-bold text-lg text-white">QR động báo tiền tức thì</h3>
+            <p class="text-sm text-slate-300 leading-relaxed">Tạo mã QR theo từng hóa đơn với đúng số tiền, tự động xác nhận chuyển khoản thành công.</p>
+          </div>
+
+          <div class="glass glass-interactive rounded-3xl p-6 space-y-2.5 reveal">
+            <h3 class="font-bold text-lg text-white">Định lượng &amp; Cảnh báo tồn kho</h3>
+            <p class="text-sm text-slate-300 leading-relaxed">Tự trừ nguyên liệu theo công thức món và cảnh báo sớm khi mặt hàng sắp hết.</p>
+          </div>
+
+          <div class="glass glass-interactive rounded-3xl p-6 space-y-2.5 reveal">
+            <h3 class="font-bold text-lg text-white">Báo cáo ca &amp; Lợi nhuận trực quan</h3>
+            <p class="text-sm text-slate-300 leading-relaxed">Xem món bán chạy, khung giờ cao điểm và tổng hợp cuối ca tự động, xuất file dễ dàng.</p>
+          </div>
+
+          <div class="glass glass-interactive rounded-3xl p-6 space-y-2.5 reveal">
+            <h3 class="font-bold text-lg text-white">Chạy ổn định cả khi mất mạng</h3>
+            <p class="text-sm text-slate-300 leading-relaxed">Tiếp tục lên đơn và in hóa đơn cục bộ khi đường truyền chập chờn, tự đồng bộ khi có mạng lại.</p>
+          </div>
+
+          <div class="glass glass-interactive rounded-3xl p-6 space-y-2.5 reveal">
+            <h3 class="font-bold text-lg text-white">Tích điểm &amp; Ưu đãi khách quen</h3>
+            <p class="text-sm text-slate-300 leading-relaxed">Lưu lịch sử khách hàng qua số điện thoại để áp dụng ưu đãi sinh nhật hoặc tích điểm tự động.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. CTA SECTION (THU LEAD / ĐẶT DEMO) -->
+    <section id="cta" class="py-20 px-4 sm:px-6">
+      <div class="max-w-5xl mx-auto glass rounded-[2rem] p-8 sm:p-12 relative overflow-hidden reveal">
+        <div class="grid lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-6 space-y-4">
+            <span class="inline-block text-xs font-bold uppercase tracking-widest text-teal-300">
+              Bắt đầu ngay hôm nay
+            </span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold leading-tight">
+              Trải nghiệm hệ thống trên chính thực đơn quán bạn
+            </h2>
+            <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+              Để lại thông tin, đội ngũ chuyên viên sẽ hỗ trợ dựng thử menu mẫu, hướng dẫn 1-1 và kích hoạt gói dùng thử 14 ngày miễn phí.
+            </p>
+          </div>
+
+          <div class="lg:col-span-6">
+            <form id="leadForm" class="glass rounded-2xl p-6 space-y-4">
+              <div>
+                <label for="fullname" class="block text-xs font-semibold text-slate-300 mb-1.5">Họ và tên *</label>
+                <input id="fullname" name="fullname" type="text" required placeholder="Nguyễn Minh Anh"
+                  class="w-full rounded-xl bg-slate-950/60 border border-white/15 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-400 transition" />
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="phone" class="block text-xs font-semibold text-slate-300 mb-1.5">Số điện thoại *</label>
+                  <input id="phone" name="phone" type="tel" required placeholder="0901 234 567"
+                    class="w-full rounded-xl bg-slate-950/60 border border-white/15 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-400 transition" />
+                </div>
+                <div>
+                  <label for="business" class="block text-xs font-semibold text-slate-300 mb-1.5">Tên quán / Mô hình</label>
+                  <input id="business" name="business" type="text" placeholder="Tiệm cà phê Mây"
+                    class="w-full rounded-xl bg-slate-950/60 border border-white/15 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-400 transition" />
+                </div>
+              </div>
+
+              <button type="submit" class="w-full btn-glass-primary text-slate-950 font-bold text-sm py-3.5 rounded-xl cursor-pointer">
+                Đăng ký nhận Demo miễn phí
+              </button>
+
+              <p id="formMessage" class="hidden text-xs sm:text-sm text-teal-300 font-medium pt-1">
+                ✓ Đã ghi nhận thông tin! Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. FAQ SECTION -->
+    <section id="faq" class="py-20 pb-28 px-4 sm:px-6">
+      <div class="max-w-3xl mx-auto">
+        <div class="text-center space-y-3 mb-12 reveal">
+          <p class="text-xs font-bold uppercase tracking-widest text-sky-400">FAQ</p>
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Câu hỏi thường gặp</h2>
+        </div>
+
+        <div class="space-y-4" id="faqList">
+          <div class="faq-item glass rounded-2xl reveal">
+            <button type="button" class="faq-trigger w-full px-6 py-5 text-left flex items-center justify-between gap-4 font-semibold text-sm sm:text-base cursor-pointer">
+              <span>Quán có cần mua thêm máy POS chuyên dụng đắt tiền không?</span>
+              <span class="faq-icon text-xl text-sky-300 shrink-0">+</span>
+            </button>
+            <div class="faq-content">
+              <div class="faq-inner px-6 pb-5 text-sm text-slate-300 leading-relaxed">
+                Không bắt buộc. Bạn có thể tận dụng điện thoại, máy tính bảng hoặc laptop sẵn có tại quán, và kết nối thêm máy in bill/máy in tem nếu có nhu cầu.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item glass rounded-2xl reveal">
+            <button type="button" class="faq-trigger w-full px-6 py-5 text-left flex items-center justify-between gap-4 font-semibold text-sm sm:text-base cursor-pointer">
+              <span>Thời gian triển khai và nhập thực đơn mất bao lâu?</span>
+              <span class="faq-icon text-xl text-sky-300 shrink-0">+</span>
+            </button>
+            <div class="faq-content">
+              <div class="faq-inner px-6 pb-5 text-sm text-slate-300 leading-relaxed">
+                Với thực đơn thông thường, bạn có thể nhập tay hoặc tải lên file mẫu trong khoảng 15–30 phút. Đội ngũ hỗ trợ cũng có thể nhập giúp khi đăng ký gói triển khai.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item glass rounded-2xl reveal">
+            <button type="button" class="faq-trigger w-full px-6 py-5 text-left flex items-center justify-between gap-4 font-semibold text-sm sm:text-base cursor-pointer">
+              <span>Hết 14 ngày dùng thử nếu không tiếp tục thì sao?</span>
+ 
